@@ -16,7 +16,7 @@ This means that you can have a remote core permanently connected to one or more 
 
 ## Usage
 
-This docker image is available as a [trusted build on the docker index](https://index.docker.io/u/clue/findgithubemail/),
+This docker image is available as a [trusted build on the docker index](https://index.docker.io/u/clue/quassel-core/),
 so using it is as simple as running:
 
 ```bash

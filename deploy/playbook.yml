@@ -1,0 +1,48 @@
+# Ansible 1.6 playbook for deploying quassel to a VPS
+# Tested on a Digital Ocean Ubuntu 14 / Docker 1.0 image
+# Requires passwordless SSH access to a 'root' user.
+---
+- hosts: cores
+  remote_user: root
+
+  tasks:
+    - name: ensure monit is installed
+      apt: pkg=monit state=installed
+
+    - name: enable monit remote control
+      copy:
+        src=../deploy/config/monit-httpd.conf
+        dest=/etc/monit/conf.d/monit-httpd.conf
+        owner=root group=root mode=0444
+
+    - name: restart monit to enable latest config
+      service: name=monit state=restarted
+
+    - name: get quassel docker image
+      command: docker pull clue/quassel-core
+
+    # This command isn't quite idempotent so we'll ignore failures
+    - name: create data volume container
+      command: docker run --name quassel-data -v /var/lib/quassel clue/quassel-core --version
+      ignore_errors: yes
+
+    - name: upload monit config for quasselcore
+      copy:
+        src=../deploy/config/monit-quasselcore.conf
+        dest=/etc/monit/conf.d/quasselcore.conf
+        owner=root group=root mode=0444
+
+    - name: reload monit config
+      command: monit reload
+
+    - name: restart quasselcore
+      command: monit restart quasselcore
+
+    - name: allow connections on port 22
+      ufw: rule=allow port=22
+
+    - name: allow connections on port 4242
+      ufw: rule=allow port=4242
+
+    - name: enable firewall
+      ufw: state=enabled

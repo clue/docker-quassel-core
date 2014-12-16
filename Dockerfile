@@ -3,6 +3,7 @@ MAINTAINER Christian Lück <christian@lueck.tv>
 
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y \
 	quassel-core \
+	libqt4-sql-psql \
 	libqca2-plugin-ossl libicu52
 
 USER quasselcore
